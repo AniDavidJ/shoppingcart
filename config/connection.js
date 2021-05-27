@@ -1,3 +1,5 @@
+//Mongodb connection with 27017 port.
+
 const mongoClient = require('mongodb').MongoClient
 const state={
     db:null
