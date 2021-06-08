@@ -118,7 +118,8 @@ router.post('/verify-payment',(req,res)=>{
       res.json({status:true})
     })
   }).catch((err)=>{
-    res.json({status:'Payment failed'})
+    console.log(err);
+    res.json({status:false,errMsg:''})
   })
 })
 module.exports = router;
