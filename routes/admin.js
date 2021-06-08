@@ -1,3 +1,4 @@
+const { response } = require('express');
 var express = require('express');
 var router = express.Router();
 var productHelper=require('../helpers/product-helpers')
@@ -25,5 +26,24 @@ router.post('/add-product',(req,res)=>{
     })
   })
 })
-
+router.get('/edit-product/:id',async(req,res)=>{
+  let product=await productHelper.getProductDetails(req.params.id)
+  res.render('admin/edit-product',{product})
+})
+router.get('/delete-product/',(req,res)=>{
+  let productId = req.query.id
+  productHelper.deleteProduct(productId).then((response)=>{
+    res.redirect('/admin/')
+  })
+})
+//Updation
+router.post('/edit-product/:id',(req,res)=>{
+  productHelper.updateProduct(req.params.id,req.body).then(()=>{
+    res.redirect('/admin')
+    if(req.files.Image){
+      let image=req.files.Image
+      image.mv('./public/product-images/'+req.params.id+'.jpg')
+    }
+  })
+})
 module.exports = router;

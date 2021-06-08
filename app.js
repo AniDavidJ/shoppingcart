@@ -11,6 +11,7 @@ var hbs=require('express-handlebars');
 var app = express();
 var fileupload=require('express-fileupload')
 var db=require('./config/connection')//db declared
+var session=require('express-session')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -23,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(session({secret:"Key",cookie:{maxAge:600000}}))
 //db add before the router call..db connect
 db.connect((err)=>{
   if(err) console.log('Conection Error..');

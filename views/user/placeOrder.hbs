@@ -1,0 +1,115 @@
+<section>
+    <div class="container mt-5">
+        <form action="" id="checkout-form">
+            <div class="row">
+
+                <div class="form-group col-md-6">
+                    <h2>Enter delivery Details</h2>
+
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" class="form-control" id="address" name="address" placeholder="Address">
+                    </div>
+                    <div class="form-group">
+                        <label for="pincode">Pincode</label>
+                        <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode">
+                    </div>
+                    <div class="form-group">
+                        <label for="moblie">Moblie Number</label>
+                        <input type="text" class="form-control" id="moblie" name="moblie" placeholder="Moblie Number">
+                    </div>
+                    <input type="text" name="userId" id="" value="{{user._id}}" hidden>
+                </div>
+                <div class="card col-md-4 ml-5 mb-5" style="width: 18rem;">
+                    <div class="">
+                        <div class="card-body">
+                            <h5 class="card-title mt-3">Total Amount:Rs:{{totalAmount}}</h5>
+                            <h6 class="card-subtitle mb-2 mt-3 text-muted">Payment Method</h6>
+
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="payment-method" id="RadioCOD" value="COD"
+                            checked>
+                        <label class="form-check-label" for="RadioCOD">
+                            COD
+                        </label>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="radio" name="payment-method" id="RadioOnline"
+                            value="OnlinePayment">
+                        <label class="form-check-label" for="RadioOnline">
+                            Online Payment
+                        </label>
+                    </div>
+                    <button class="btn btn-primary mt-5 mb-4" type="submit">Checkout</button>
+
+                </div>
+            </div>
+        </form>
+    </div>
+
+</section>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    $("#checkout-form").submit((e) => {
+        e.preventDefault()
+        $.ajax({
+            url: '/place-order',
+            method: 'post',
+            data: $("#checkout-form").serialize(),
+            success: (response) => {
+                if (response.codSuccess) {
+                    location.href = '/order'
+                }
+                else {
+                    razorPayPayment(response)
+                }
+                alert('Successfully Order Placed')
+            }
+        })
+    })
+    function(order) {
+        var options = {
+            "key": "YOUR_KEY_ID", // Enter the Key ID generated from the Dashboard
+            "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            "currency": "INR",
+            "name": "AJ Technologies",
+            "description": "Test Transaction",
+            "image": "https://example.com/your_logo",
+            "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "handler": function (response) {
+                alert(response.razorpay_payment_id);
+                alert(response.razorpay_order_id);
+                alert(response.razorpay_signature)
+                verifyPayment(response, order)
+            },
+            "prefill": {
+                "name": "Gaurav Kumar",
+                "email": "gaurav.kumar@example.com",
+                "contact": "9999999999"
+            },
+            "notes": {
+                "address": "Razorpay Corporate Office"
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+
+    }
+
+    function verifyPayment(payment, order) {
+        $.ajax({
+            url: '/verify-payment',
+            data: {
+                payment,
+                order
+            },
+            method: 'post'
+        })
+    }
+</script>
